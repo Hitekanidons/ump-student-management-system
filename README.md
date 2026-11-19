@@ -128,6 +128,34 @@ Then open <http://localhost:5500/>.
 
 ---
 
+## 5. Deploy to Vercel
+
+This repository is a plain static ES-module application. Vercel does not expose
+`VITE_*` variables to plain browser JavaScript. Configure these variables in the
+Vercel project under **Settings → Environment Variables**:
+
+- `VITE_FIREBASE_API_KEY`
+- `VITE_FIREBASE_AUTH_DOMAIN`
+- `VITE_FIREBASE_DATABASE_URL`
+- `VITE_FIREBASE_PROJECT_ID`
+- `VITE_FIREBASE_STORAGE_BUCKET`
+- `VITE_FIREBASE_MESSAGING_SENDER_ID`
+- `VITE_FIREBASE_APP_ID`
+- `VITE_FIREBASE_MEASUREMENT_ID` (optional)
+
+Set the variables for Production (and Preview if needed), then redeploy.
+The project includes `/api/firebase-config.js`, which supplies the browser
+Firebase initialization with these server-side environment variables.
+
+In Vercel, set the project **Root Directory** to `ump-bict-platform` only if
+the repository's top level is the parent folder shown in this workspace.
+Leave **Build Command** empty and **Output Directory** empty for this static
+project. Do not set an output directory such as `dist`.
+
+Finally, in Firebase Console → Authentication → Settings → Authorized domains,
+add the deployed Vercel hostname, for example
+`your-project.vercel.app` and any custom domain.
+
 ## 4. Cloudflare R2 (file storage)
 
 Firebase Storage requires the Blaze plan. This project uses **Cloudflare R2**

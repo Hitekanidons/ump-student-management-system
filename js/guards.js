@@ -10,7 +10,8 @@ import { fetchUserProfile } from "./auth.js";
 
 export async function requireAuth({ role, redirectTo = "login.html" } = {}) {
   const { user } = await new Promise((resolve, reject) => {
-    const unsub = onAuthStateChanged(
+    let unsub = () => {};
+    unsub = onAuthStateChanged(
       auth,
       (u) => { unsub(); resolve({ user: u }); },
       (err) => { unsub(); reject(err); }

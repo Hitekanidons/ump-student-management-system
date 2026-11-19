@@ -5,7 +5,26 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getDatabase } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import { firebaseConfig } from "./firebase-config.js";
+
+let firebaseConfig;
+
+// On Vercel, read the Firebase web configuration from the serverless endpoint.
+// Plain static JavaScript cannot read VITE_* variables directly.
+try {
+  const response = await fetch("/api/firebase-config", { cache: "no-store" });
+  if (!response.ok) throw new Error(`Vercel Firebase config returned ${response.status}`);
+  firebaseConfig = await response.json();
+} catch (deploymentError) {
+  // Local static-server fallback. This file is intentionally not committed.
+  try {
+    ({ firebaseConfig } = await import("./firebase-config.js"));
+  } catch {
+    throw new Error(
+      "Firebase is not configured. Add the VITE_FIREBASE_* variables to Vercel " +
+      "or create js/firebase-config.js for local development."
+    );
+  }
+}
 
 if (!firebaseConfig?.apiKey || firebaseConfig.apiKey.startsWith("PASTE_")) {
   throw new Error(
