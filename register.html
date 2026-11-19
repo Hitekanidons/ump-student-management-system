@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register — UMP BICT Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+  <main class="auth-shell">
+    <aside class="auth-brand">
+      <a href="index.html" class="auth-brand__logo">
+        <span class="auth-brand__logo-mark">UMP</span>
+        <span>BICT Learning Platform</span>
+      </a>
+      <div class="auth-brand__copy">
+        <h2>Start your BICT journey with everything in one place.</h2>
+        <p>Notes, slides, study guides and examination scopes — curated by your lecturer, available to you anytime.</p>
+      </div>
+      <div class="auth-brand__features">
+        <div><i data-lucide="book-open"></i> Module resources</div>
+        <div><i data-lucide="bell"></i> Live announcements</div>
+        <div><i data-lucide="shield-check"></i> Verified students only</div>
+      </div>
+    </aside>
+
+    <section class="auth-form-panel">
+      <div class="auth-form-wrap">
+        <h1>Create your student account</h1>
+        <p class="auth-subtitle">Only registered UMP BICT students may sign up.</p>
+
+        <div id="formBanner" class="auth-banner auth-banner-error" role="alert"></div>
+
+        <form id="registerForm" novalidate>
+          <div class="form-field">
+            <label for="fullName">Full name</label>
+            <input type="text" id="fullName" name="fullName" autocomplete="name"
+                   placeholder="e.g. Thandeka Nkosi" required>
+            <p class="field-error" id="fullNameError"></p>
+          </div>
+
+          <div class="form-field">
+            <label for="studentNumber">Student number</label>
+            <input type="text" id="studentNumber" name="studentNumber" inputmode="numeric"
+                   maxlength="9" autocomplete="off" placeholder="230236088" required>
+            <p class="field-hint">Exactly 9 digits (e.g. 230236088).</p>
+            <p class="field-error" id="studentNumberError"></p>
+          </div>
+
+          <div class="form-field">
+            <label for="email">UMP student email</label>
+            <input type="email" id="email" name="email" autocomplete="email"
+                   placeholder="230236088@ump.ac.za" required>
+            <p class="field-hint">Must match your student number: <strong>9digits@ump.ac.za</strong>.</p>
+            <p class="field-error" id="emailError"></p>
+          </div>
+
+          <div class="form-field">
+            <label for="password">Password</label>
+            <div class="password-wrap">
+              <input type="password" id="password" name="password" autocomplete="new-password"
+                     placeholder="Create a strong password" required>
+              <button type="button" class="password-toggle" data-toggle-password="password" aria-label="Show password">
+                <i data-lucide="eye"></i>
+              </button>
+            </div>
+            <ul class="password-rules" id="passwordRules">
+              <li data-rule="length">At least 8 characters</li>
+              <li data-rule="upper">One uppercase letter (A–Z)</li>
+              <li data-rule="lower">One lowercase letter (a–z)</li>
+              <li data-rule="number">One number (0–9)</li>
+              <li data-rule="special">One special character (!@#$…)</li>
+            </ul>
+            <p class="field-error" id="passwordError"></p>
+          </div>
+
+          <div class="form-field">
+            <label for="confirmPassword">Confirm password</label>
+            <div class="password-wrap">
+              <input type="password" id="confirmPassword" name="confirmPassword"
+                     autocomplete="new-password" placeholder="Re-enter your password" required>
+              <button type="button" class="password-toggle" data-toggle-password="confirmPassword" aria-label="Show password">
+                <i data-lucide="eye"></i>
+              </button>
+            </div>
+            <p class="field-error" id="confirmPasswordError"></p>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" id="submitBtn">
+            <span>Create account</span>
+          </button>
+
+          <p class="form-footer">
+            Already have an account? <a href="login.html" class="link">Sign in</a>
+          </p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>window.addEventListener('DOMContentLoaded', () => lucide.createIcons());</script>
+  <script type="module" src="js/registration.js"></script>
+</body>
+</html>

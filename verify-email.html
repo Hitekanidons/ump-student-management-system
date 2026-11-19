@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify your email — UMP BICT Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/auth.css">
+</head>
+<body>
+  <main style="min-height:100vh; display:grid; place-items:center; padding:32px 20px; background: var(--grey);">
+    <div class="verify-card">
+      <div class="verify-card__icon">
+        <i data-lucide="mail-check"></i>
+      </div>
+      <h1>Verify your UMP email</h1>
+      <p id="verifyMessage">
+        We sent a verification link to <strong id="userEmail">your email</strong>.
+        Click the link in that email, then return here and press <em>I've verified</em>.
+      </p>
+
+      <div id="verifyBanner" class="auth-banner" role="alert"></div>
+
+      <button class="btn btn-primary" id="checkBtn">
+        <i data-lucide="check-circle-2" style="width:16px;height:16px;"></i>
+        I've verified my email
+      </button>
+      <button class="btn btn-secondary" id="resendBtn">
+        <i data-lucide="send" style="width:16px;height:16px;"></i>
+        Resend email
+      </button>
+      <button class="btn btn-ghost" id="logoutBtn" style="margin-top: 12px;">
+        Use a different account
+      </button>
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>window.addEventListener('DOMContentLoaded', () => lucide.createIcons());</script>
+  <script type="module">
+    import { auth } from "./js/firebase-init.js";
+    import { onAuthStateChanged, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { fetchUserProfile, logout } from "./js/auth.js";
+    import { $, setBusy, toast } from "./js/utils.js";
+
+    const banner = $("#verifyBanner");
+    const userEmailEl = $("#userEmail");
+    const checkBtn = $("#checkBtn");
+    const resendBtn = $("#resendBtn");
+    const logoutBtn = $("#logoutBtn");
+
+    let currentUser = null;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) { window.location.replace("login.html"); return; }
+      currentUser = user;
+      userEmailEl.textContent = user.email;
+
+      if (user.emailVerified) {
+        const profile = await fetchUserProfile(user.uid);
+        const target = profile?.role ? `${profile.role}-dashboard.html` : "login.html";
+        window.location.replace(target);
+      }
+    });
+
+    checkBtn.addEventListener("click", async () => {
+      if (!currentUser) return;
+      setBusy(checkBtn, true, "Checking…");
+      try {
+        await currentUser.reload();
+        if (currentUser.emailVerified) {
+          const profile = await fetchUserProfile(currentUser.uid);
+          const target = profile?.role ? `${profile.role}-dashboard.html` : "login.html";
+          window.location.replace(target);
+        } else {
+          banner.className = "auth-banner auth-banner-info show";
+          banner.textContent = "Not verified yet. Please click the link in your inbox first.";
+        }
+      } finally {
+        setBusy(checkBtn, false);
+      }
+    });
+
+    resendBtn.addEventListener("click", async () => {
+      if (!currentUser) return;
+      setBusy(resendBtn, true, "Sending…");
+      try {
+        await sendEmailVerification(currentUser);
+        toast("Verification email resent. Check your inbox.", "success");
+      } catch (err) {
+        toast(err.message || "Could not resend email.", "error");
+      } finally {
+        setBusy(resendBtn, false);
+      }
+    });
+
+    logoutBtn.addEventListener("click", () => logout("login.html"));
+  </script>
+</body>
+</html>

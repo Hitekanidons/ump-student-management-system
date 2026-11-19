@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study Materials — UMP BICT Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+  <div id="appRoot"></div>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script type="module">
+    import { db } from "./js/firebase-init.js";
+    import { ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { requireAuth } from "./js/guards.js";
+    import { mountLayout } from "./js/navigation.js";
+    import { escapeHtml } from "./js/utils.js";
+    import {
+      renderResourceCard, attachResourceHandlers, filterResources,
+      categoryTabs, CATEGORIES
+    } from "./js/resources.js";
+
+    const { profile } = await requireAuth({ role: "student" });
+    const { main } = mountLayout({
+      active: "resources",
+      profile,
+      title: "Study Materials",
+      subtitle: "All learning resources across your modules"
+    });
+
+    main.innerHTML = `
+      <section class="page-section">
+        <div class="toolbar">
+          <div class="search-box">
+            <i data-lucide="search"></i>
+            <input type="search" id="searchInput" placeholder="Search by title, description or filename…">
+          </div>
+          <select class="select" id="moduleFilter"><option value="">All modules</option></select>
+        </div>
+        <div class="tabs" id="categoryTabs">${categoryTabs("All")}</div>
+        <div class="resource-list" id="resourceList">
+          <div class="skeleton skeleton-card"></div>
+        </div>
+      </section>`;
+    if (window.lucide) lucide.createIcons();
+
+    const [modSnap, resSnap] = await Promise.all([
+      get(ref(db, "modules")),
+      get(ref(db, "resources"))
+    ]);
+
+    const modules = Object.entries(modSnap.val() || {})
+      .map(([id, v]) => ({ ...(v || {}), moduleId: id }))
+      .filter((m) => m.programme === profile.programme && m.academicYear === profile.academicYear);
+
+    const moduleById = new Map(modules.map((m) => [m.moduleId, m]));
+
+    const resources = Object.entries(resSnap.val() || {})
+      .map(([id, v]) => ({ ...(v || {}), _id: id }))
+      .filter((r) => moduleById.has(r.moduleId) && r.status !== "hidden")
+      .sort((a, b) => (b.uploadedAt || 0) - (a.uploadedAt || 0))
+      .map((r) => ({
+        ...r,
+        lecturerName: moduleById.get(r.moduleId)?.lecturerName || ""
+      }));
+
+    // Populate module filter
+    const moduleFilter = document.getElementById("moduleFilter");
+    modules.forEach((m) => {
+      const opt = document.createElement("option");
+      opt.value = m.moduleId;
+      opt.textContent = `${m.moduleCode} — ${m.moduleName}`;
+      moduleFilter.appendChild(opt);
+    });
+
+    const state = { query: "", category: "All", moduleId: "" };
+
+    function render() {
+      const filtered = filterResources(resources, state);
+      const listEl = document.getElementById("resourceList");
+      if (filtered.length === 0) {
+        listEl.innerHTML = `
+          <div class="empty-state">
+            <i data-lucide="inbox"></i>
+            <h3>No materials found</h3>
+            <p>Adjust your search or filters and try again.</p>
+          </div>`;
+      } else {
+        listEl.innerHTML = filtered.map((r) => {
+          const m = moduleById.get(r.moduleId);
+          return renderResourceCard(r, {
+            showModule: true,
+            moduleLabel: m ? `${m.moduleCode}` : ""
+          });
+        }).join("");
+        attachResourceHandlers(listEl, filtered, profile);
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    document.getElementById("categoryTabs").addEventListener("click", (e) => {
+      const tab = e.target.closest(".tab"); if (!tab) return;
+      document.querySelectorAll("#categoryTabs .tab").forEach((t) => t.classList.remove("is-active"));
+      tab.classList.add("is-active");
+      state.category = tab.dataset.category;
+      render();
+    });
+
+    document.getElementById("searchInput").addEventListener("input", (e) => {
+      state.query = e.target.value; render();
+    });
+
+    moduleFilter.addEventListener("change", (e) => {
+      state.moduleId = e.target.value; render();
+    });
+
+    render();
+  </script>
+</body>
+</html>

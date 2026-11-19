@@ -1,0 +1,60 @@
+{
+  "rules": {
+    "users": {
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'lecturer' || root.child('users').child(auth.uid).child('role').val() === 'admin')",
+      "$uid": {
+        ".read": "auth != null && ($uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin' || root.child('users').child(auth.uid).child('role').val() === 'lecturer')",
+        ".write": "auth != null && $uid === auth.uid && !data.exists() && newData.child('role').val() === 'student' && newData.child('accountStatus').val() === 'active' && newData.child('programme').val() === 'BICT' && newData.child('email').val() === auth.token.email && newData.child('studentNumber').val().matches(/^\\d{9}$/) && newData.child('email').val() === (newData.child('studentNumber').val() + '@ump.ac.za')",
+        "role": {
+          ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'"
+        },
+        "accountStatus": {
+          ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'"
+        },
+        "emailVerified": { ".write": "auth != null && auth.uid === $uid" },
+        "fullName": { ".write": "auth != null && auth.uid === $uid" }
+      }
+    },
+
+    "modules": {
+      ".read": "auth != null",
+      "$moduleId": {
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'admin' || (root.child('users').child(auth.uid).child('role').val() === 'lecturer' && (!data.exists() || data.child('lecturerId').val() === auth.uid)))"
+      }
+    },
+
+    "resources": {
+      ".read": "auth != null && auth.token.email_verified == true",
+      "$resourceId": {
+        ".write": "auth != null && auth.token.email_verified == true && (root.child('users').child(auth.uid).child('role').val() === 'admin' || (root.child('users').child(auth.uid).child('role').val() === 'lecturer' && (!data.exists() || data.child('lecturerId').val() === auth.uid) && newData.child('lecturerId').val() === auth.uid))",
+        "downloadCount": {
+          ".write": "auth != null && auth.token.email_verified == true"
+        }
+      }
+    },
+
+    "announcements": {
+      ".read": "auth != null && auth.token.email_verified == true",
+      "$announcementId": {
+        ".write": "auth != null && auth.token.email_verified == true && (root.child('users').child(auth.uid).child('role').val() === 'admin' || (root.child('users').child(auth.uid).child('role').val() === 'lecturer' && (!data.exists() || data.child('lecturerId').val() === auth.uid)))"
+      }
+    },
+
+    "notifications": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('role').val() === 'lecturer' || root.child('users').child(auth.uid).child('role').val() === 'admin')",
+        "$notifId": {
+          ".write": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('role').val() === 'lecturer' || root.child('users').child(auth.uid).child('role').val() === 'admin')"
+        }
+      }
+    },
+
+    "downloads": {
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'lecturer' || root.child('users').child(auth.uid).child('role').val() === 'admin')",
+      "$downloadId": {
+        ".write": "auth != null && auth.token.email_verified == true && newData.child('userId').val() === auth.uid"
+      }
+    }
+  }
+}
