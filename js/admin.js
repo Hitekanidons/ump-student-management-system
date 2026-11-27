@@ -62,7 +62,7 @@ main.innerHTML = `
   <section class="page-section">
     <div class="welcome">
       <h2>Welcome, ${escapeHtml(profile.fullName || "Administrator")}</h2>
-      <p>Manage the entire UMP BICT platform from here.</p>
+      <p>Manage the entire To be sold platform from here.</p>
       <div class="welcome__chips">
         <span class="welcome__chip">${modules.length} modules</span>
         <span class="welcome__chip">${lecturers.length} lecturers</span>

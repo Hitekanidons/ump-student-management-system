@@ -59,10 +59,8 @@ export function mountLayout({ active, profile, title = "", subtitle = "" }) {
     <div class="app-shell">
       <aside class="sidebar" id="appSidebar">
         <div class="sidebar__brand">
-          <div class="sidebar__mark">UMP</div>
           <div class="sidebar__brand-text">
-            BICT Platform
-            <small>Learning &amp; Resources</small>
+            To be sold
           </div>
         </div>
 

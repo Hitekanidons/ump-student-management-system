@@ -20,7 +20,7 @@ export function validateUmpEmail(email, studentNumber) {
   if (!match)
     return {
       ok: false,
-      message: "Use your UMP student email in the format 123456789@ump.ac.za."
+      message: "Use your student email in the format 123456789@ump.ac.za."
     };
   const emailNumber = match[1];
   if (studentNumber && emailNumber !== studentNumber.trim())
